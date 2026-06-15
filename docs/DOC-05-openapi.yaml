@@ -1,0 +1,249 @@
+openapi: 3.1.0
+info:
+  title: Car Dealer API
+  version: 1.0.0
+  description: Spec-Driven Development API for Car Dealer Website
+servers:
+  - url: https://api.cardealership.com/v1
+    description: Production Server
+  - url: https://api-staging.cardealership.com/v1
+    description: Staging Server
+  - url: http://localhost:8000/v1
+    description: Local Dev Server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    StandardResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation completed successfully"
+        data:
+          type: object
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 150
+        total_pages:
+          type: integer
+          example: 8
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              example: "Invalid input"
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  issue:
+                    type: string
+
+paths:
+  /auth/register:
+    post:
+      summary: Register new user
+  /auth/login:
+    post:
+      summary: Login, get JWT
+  /auth/refresh:
+    post:
+      summary: Refresh access token
+  /auth/logout:
+    post:
+      summary: Invalidate refresh token
+  /auth/forgot-password:
+    post:
+      summary: Trigger password reset email
+  /auth/reset-password:
+    post:
+      summary: Set new password with token
+
+  /cars:
+    get:
+      summary: List cars (paginated, filterable)
+    post:
+      summary: Create new car listing (Dealer only)
+      security:
+        - bearerAuth: []
+  /cars/{id}:
+    get:
+      summary: Get single car detail
+    put:
+      summary: Update car listing (Dealer only)
+      security:
+        - bearerAuth: []
+    delete:
+      summary: Delete car listing (Dealer only)
+      security:
+        - bearerAuth: []
+  /cars/search:
+    get:
+      summary: Full-text search
+  /cars/featured:
+    get:
+      summary: Featured listings
+  /cars/{id}/status:
+    patch:
+      summary: Change status (active/sold) (Dealer only)
+      security:
+        - bearerAuth: []
+
+  /cars/{id}/images/presign:
+    post:
+      summary: Get S3 presigned upload URL (Dealer only)
+      security:
+        - bearerAuth: []
+  /cars/{id}/images:
+    post:
+      summary: Register uploaded image in DB (Dealer only)
+      security:
+        - bearerAuth: []
+  /cars/{id}/images/{imgId}:
+    delete:
+      summary: Delete car image (Dealer only)
+      security:
+        - bearerAuth: []
+  /cars/{id}/images/{imgId}/primary:
+    patch:
+      summary: Set as primary image (Dealer only)
+      security:
+        - bearerAuth: []
+
+  /inquiries:
+    post:
+      summary: Submit inquiry (public/auth)
+    get:
+      summary: Dealer get all inquiries for their cars
+      security:
+        - bearerAuth: []
+  /inquiries/{id}:
+    get:
+      summary: Get single inquiry
+      security:
+        - bearerAuth: []
+    delete:
+      summary: Dealer delete inquiry
+      security:
+        - bearerAuth: []
+  /inquiries/{id}/status:
+    patch:
+      summary: Dealer update status
+      security:
+        - bearerAuth: []
+
+  /bookings:
+    post:
+      summary: Create booking (auth required)
+      security:
+        - bearerAuth: []
+    get:
+      summary: List user bookings
+      security:
+        - bearerAuth: []
+  /bookings/availability:
+    get:
+      summary: Get available slots for a car+date
+  /bookings/{id}:
+    get:
+      summary: Get single booking
+      security:
+        - bearerAuth: []
+  /bookings/{id}/status:
+    patch:
+      summary: Cancel booking
+      security:
+        - bearerAuth: []
+
+  /users/me:
+    get:
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+    put:
+      summary: Update profile
+      security:
+        - bearerAuth: []
+  /users/me/wishlist:
+    get:
+      summary: Get wishlist
+      security:
+        - bearerAuth: []
+    post:
+      summary: Add to wishlist
+      security:
+        - bearerAuth: []
+  /users/me/wishlist/{carId}:
+    delete:
+      summary: Remove from wishlist
+      security:
+        - bearerAuth: []
+
+  /dealers/me:
+    get:
+      summary: Dealer get own profile
+      security:
+        - bearerAuth: []
+    put:
+      summary: Dealer update profile
+      security:
+        - bearerAuth: []
+  /dealers/{id}:
+    get:
+      summary: Get dealer public profile
+
+  /admin/users:
+    get:
+      summary: List all users (Admin only)
+      security:
+        - bearerAuth: []
+  /admin/users/{id}/status:
+    patch:
+      summary: Activate/suspend user (Admin only)
+      security:
+        - bearerAuth: []
+  /admin/dealers/pending:
+    get:
+      summary: Pending dealer approvals (Admin only)
+      security:
+        - bearerAuth: []
+  /admin/dealers/{id}/approve:
+    patch:
+      summary: Approve/reject dealer (Admin only)
+      security:
+        - bearerAuth: []
