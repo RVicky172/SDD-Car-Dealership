@@ -17,5 +17,15 @@ services:
     ports:
       - "6379:6379"
 
+  #  pgAdmin service
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: rohillavicky.172@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: RVicky@2411
+    ports:
+      - "8080:80"
+
 volumes:
   postgres_data:
